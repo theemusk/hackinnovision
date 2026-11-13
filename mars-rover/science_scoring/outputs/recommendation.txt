@@ -1,0 +1,12 @@
+SCIENTIFIC EXPLORATION RECOMMENDATION
+========================================
+Recommended target : T6  (position 40, 90)
+Mission score      : 95.20 / 100
+Water-ice prob.    : 0.95  (High)
+Scientific value   : 0.98
+Terrain risk       : 0.10
+Confidence         : 92%  (heuristic, not calibrated)
+
+Why T6: it ranks first because of high estimated water-ice potential (0.95); high scientific value (0.98); low terrain risk (0.10); high estimated confidence (92%).
+
+Best water-ice resource: T3 (ice probability 0.97, confidence 40%, terrain risk 0.85). It is NOT the top overall target because its mission score is 69.80 (rank 3).
