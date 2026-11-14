@@ -1,3 +1,8 @@
 """Shared configuration for the Mars rover project."""
 
-# TODO: Set the terrain grid dimensions and rover start/goal coordinates.
+GRID_SIZE = 256
+START = (10, 10)   
+GOAL = (240, 240)   
+
+
+SAFE, SAND, ROCK, HAZARD = 0, 1, 2, 3
