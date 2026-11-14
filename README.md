@@ -33,7 +33,7 @@ A rover on Mars cannot be joysticked from Earth, so it has to understand its ter
 ## How it works
 
 ```
- NASA/USGS CTX mosaic + CTX DEM (Mars Trek)
+ NASA/USGS CTX mosaic + CTX DEM (Mars Trek) (use .tir file extension)
                   |
                   v
      perception.py  (Terrain & Hazard)

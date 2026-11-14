@@ -13,6 +13,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 
 from config import GOAL, GRID_SIZE, START
+from report import build_report_html
 
 st.set_page_config(page_title="MARS-09 Rover Mission", page_icon="🚀", layout="wide")
 
@@ -251,6 +252,41 @@ with tab_sci:
             show_image(f"{SCI}/science_opportunity_map.png", "Science opportunity map")
             show_image(f"{SCI}/rank_stability.png", "Rank stability under changed weights")
 
+# ---------------------------------------------------------------- mission report
 st.divider()
+st.subheader("📄 Mission report")
+if st.button("Generate mission report"):
+    notes = [
+        "Terrain classes are image-texture and slope proxies, not geologically verified labels.",
+        "Hazard slope limit is 15 degrees, a tunable assumption (not an official NASA threshold).",
+        "The 20 m elevation model cannot resolve individual boulders.",
+        "Route distance is approximate (about 125 m per grid cell).",
+        "Energy figures come from the navigation module's energy model as reported.",
+    ]
+    nums = [
+        ("Terrain: safe / sand / rock / hazard",
+         f"{shares[0]:.1%} / {shares[1]:.1%} / {shares[2]:.1%} / {shares[3]:.1%}"),
+        ("Primary route", f"{len(path)} cells, about {route_km(path):.0f} km" if path else "not available"),
+        ("Route risk score", metrics.get("risk_score", "n/a")),
+        ("Energy (Wh) / battery left (%)",
+         f"{energy.get('total_energy_wh', 'n/a')} / {energy.get('remaining_battery_pct', 'n/a')}"),
+        ("Energy model says route feasible", energy.get("is_feasible", "n/a")),
+        ("Alternate route", f"{len(alt_path)} cells, risk {alt_metrics.get('risk_score', 'n/a')}" if alt_path else "not available"),
+        ("Ranked science targets", len(targets) if targets is not None else 0),
+    ]
+    show_t = targets if targets_ok(targets) else None
+    figs = [("Terrain, route and science targets",
+             mission_figure(terrain, path, targets=show_t, title="Terrain, route and science targets")),
+            ("Terrain classification", class_map(terrain, "Terrain classification"))]
+    if alt_path:
+        figs.append(("Alternate route after a simulated new hazard",
+                     mission_figure(terrain, path, alt=alt_path, hazard_at=hazard_at, title="Alternate route")))
+    st.session_state["report_html"] = build_report_html(
+        nums, figs, targets=targets, recommendation=read_text(f"{SCI}/recommendation.txt"), assumptions=notes)
+if "report_html" in st.session_state:
+    st.download_button("⬇️ Download mission report (HTML)", st.session_state["report_html"],
+                       file_name="mars09_mission_report.html", mime="text/html")
+    st.caption("Open the downloaded file in a browser. Press Ctrl+P and choose Save as PDF for a PDF copy.")
+
 st.caption("Data: NASA/JPL MRO CTX mosaic and CTX DEM of Jezero Crater (USGS Astrogeology, via NASA Mars Trek). "
            "Terrain classes are image-texture and slope proxies; see the README for assumptions.")
