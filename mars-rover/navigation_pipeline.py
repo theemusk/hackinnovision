@@ -4,13 +4,13 @@ import numpy as np
 from cost_mapper import generate_cost_map
 from energy_estimator import estimate_energy_wh
 from path_planner import a_star, compute_metrics, find_safe_cell
+from config import START, GOAL
 
 
-def load_terrain(terrain_path: str = "terrain_grid.npy") -> np.ndarray:
-    if os.path.exists(terrain_path):
-        return np.load(terrain_path)
-    rng = np.random.default_rng(42)
-    return rng.choice([0, 1, 2, 3], size=(100, 100), p=[0.6, 0.2, 0.15, 0.05])
+def load_terrain(terrain_path: str = "outputs/terrain_classes.npy") -> np.ndarray:
+    if not os.path.exists(terrain_path):
+        raise FileNotFoundError(f"{terrain_path} not found. Run perception.py first.")
+    return np.load(terrain_path)
 
 
 def plan_multi_waypoint(
@@ -54,19 +54,20 @@ def simulate_hazard_replan(
 
 
 def run_navigation(
-    terrain_path: str = "terrain_grid.npy",
+    terrain_path: str = "outputs/terrain_classes.npy",
     targets_path: str = "science_targets.json",
 ) -> dict:
     terrain = load_terrain(terrain_path)
     cost_map = generate_cost_map(terrain)
+    np.save("cost_map.npy", cost_map)
 
-    start = (0, 0)
+    start = START
     if os.path.exists(targets_path):
         with open(targets_path, "r", encoding="utf-8") as f:
             raw_targets = json.load(f)
         waypoints = [tuple(t["coords"]) for t in raw_targets.get("targets", [])[:3]]
     else:
-        waypoints = [(35, 40), (70, 65), (99, 99)]
+        waypoints = [GOAL]
 
     primary_path = plan_multi_waypoint(cost_map, start, waypoints)
     _, replanned_path, hazard_center = simulate_hazard_replan(
