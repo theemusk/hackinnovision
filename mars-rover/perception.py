@@ -62,6 +62,8 @@ k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 classes = cv2.morphologyEx(classes, cv2.MORPH_OPEN, k)
 classes = cv2.morphologyEx(classes, cv2.MORPH_CLOSE, k).astype(np.uint8)
 
+np.save("outputs/classes_image_only.npy", classes)
+
 # ---------- 7. CONFIDENCE ----------
 d = np.linalg.norm(X[:, None, :] - c[None, :, :], axis=2)
 conf = 1 - norm(d[np.arange(len(X)), km.labels_]).reshape(GRID_SIZE, GRID_SIZE)
